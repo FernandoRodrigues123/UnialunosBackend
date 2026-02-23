@@ -14,11 +14,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 
@@ -35,16 +37,26 @@ public class EstudanteController {
     @Autowired
     private TokenServices tokenServices;
 
-    @PostMapping("/cadastro")
+    @PostMapping(value = "/cadastro", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
-    public ResponseEntity<EstudanteDTODetalhes> cadastrarEstudante(@RequestBody @Valid EstudanteDTO dados, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<EstudanteDTODetalhes> cadastrarEstudante(
+            @RequestPart("dados") @Valid EstudanteDTO dados,
+            @RequestPart(value = "imagem", required = false) MultipartFile imagem,
+            UriComponentsBuilder uriBuilder) {
 
         Estudante estudante = services.cadastrarEstudante(dados);
 
-        var uri = uriBuilder.path("/estudante/{id}").buildAndExpand(estudante.getId()).toUri();
+        if (imagem != null && !imagem.isEmpty()) {
+            System.out.println("Imagem recebida: " + imagem.getOriginalFilename());
+            // depois vamos mandar pro S3 aqui
+        }
 
-        return ResponseEntity.created(uri).body(new EstudanteDTODetalhes(estudante));
+        var uri = uriBuilder.path("/estudante/{id}")
+                .buildAndExpand(estudante.getId())
+                .toUri();
 
+        return ResponseEntity.created(uri)
+                .body(new EstudanteDTODetalhes(estudante));
     }
 
     @PostMapping("/login")
