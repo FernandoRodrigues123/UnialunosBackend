@@ -26,14 +26,18 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        return http.csrf(csrf -> csrf.disable())
+        return http
+                .cors(cors -> {}) // 🔥 ATIVA O CORS NO SECURITY
+                .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers( HttpMethod.POST,"/estudantes/login","/estudantes/cadastro")
-                            .permitAll().requestMatchers(HttpMethod.OPTIONS, "/**")
-                            .permitAll().requestMatchers(HttpMethod.GET, "/teste/hello").permitAll()
-                    .anyRequest().authenticated();
-
+                    req.requestMatchers(HttpMethod.POST, "/estudantes/login", "/estudantes/cadastro")
+                            .permitAll()
+                            .requestMatchers(HttpMethod.OPTIONS, "/**")
+                            .permitAll()
+                            .requestMatchers(HttpMethod.GET, "/teste/hello")
+                            .permitAll()
+                            .anyRequest().authenticated();
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
