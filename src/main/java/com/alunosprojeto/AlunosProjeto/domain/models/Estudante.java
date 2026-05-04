@@ -44,9 +44,9 @@ public class Estudante {
     private List<Publicacao> publicacoesCurtidas;
 
 
-    public Estudante(EstudanteDTO estudanteDTO) {
+    public Estudante(EstudanteDTODetalhes estudanteDTO) {
         this.nome = estudanteDTO.nome();
-        this.urlImagem  = estudanteDTO.urlImagem();
+
         this.dataDeNascimento = estudanteDTO.dataDeNascimento();
         this.areaDeEstudo = estudanteDTO.areaDeEstudo();
         this.email = estudanteDTO.email();

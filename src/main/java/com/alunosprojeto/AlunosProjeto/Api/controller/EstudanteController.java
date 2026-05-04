@@ -36,29 +36,6 @@ public class EstudanteController {
 
     @Autowired
     private TokenServices tokenServices;
-
-    @PostMapping(value = "/cadastro", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Transactional
-    public ResponseEntity<EstudanteDTODetalhes> cadastrarEstudante(
-            @RequestPart("dados") @Valid EstudanteDTO dados,
-            @RequestPart(value = "imagem", required = false) MultipartFile imagem,
-            UriComponentsBuilder uriBuilder) {
-
-        Estudante estudante = services.cadastrarEstudante(dados);
-
-        if (imagem != null && !imagem.isEmpty()) {
-            System.out.println("Imagem recebida: " + imagem.getOriginalFilename());
-            // depois vamos mandar pro S3 aqui
-        }
-
-        var uri = uriBuilder.path("/estudante/{id}")
-                .buildAndExpand(estudante.getId())
-                .toUri();
-
-        return ResponseEntity.created(uri)
-                .body(new EstudanteDTODetalhes(estudante));
-    }
-
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Valid UsuarioEstudanteDTO dto) {
 
@@ -69,6 +46,33 @@ public class EstudanteController {
 
         return ResponseEntity.ok(new TokenDTO(tokenJWT));
     }
+
+    @PostMapping(value = "/cadastro", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Transactional
+    public ResponseEntity<EstudanteDTODetalhes> cadastrarEstudante(
+            @RequestPart("dados") @Valid EstudanteDTO dados,
+            @RequestPart(value = "imagem", required = false) MultipartFile imagem,
+            UriComponentsBuilder uriBuilder) {
+
+        Estudante estudante;
+
+        if (imagem != null && !imagem.isEmpty()) {
+            System.out.println("Imagem recebida: " + imagem.getOriginalFilename());
+            // depois vamos mandar pro S3 aqui
+            estudante = services.cadastrarEstudante(dados, imagem);
+        } else {
+            estudante = services.cadastrarEstudante(dados);
+        }
+
+        var uri = uriBuilder.path("/estudante/{id}")
+                .buildAndExpand(estudante.getId())
+                .toUri();
+
+        return ResponseEntity.created(uri)
+                .body(new EstudanteDTODetalhes(estudante));
+    }
+
+
 
     @GetMapping
     public ResponseEntity<Page<EstudanteDTOLeitura>> buscarTodosEstudantes(@PageableDefault(size = 10, sort = {"nome"}) Pageable paginacao) {

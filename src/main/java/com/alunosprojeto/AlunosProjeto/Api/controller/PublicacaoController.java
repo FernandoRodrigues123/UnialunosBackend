@@ -27,6 +27,7 @@ public class PublicacaoController {
 
     @PostMapping("/{login}")
     public ResponseEntity<PublicacaoDTOLeituraSemLike> publicar(@RequestBody Publicacao publicacao, @PathVariable String login) {
+   
         boolean validacao = UsuarioEstudanteServices.verificaUsuarioEstaTentandoAcessarProprioPerfilPeloLogin(login);
         if (validacao) {
 
