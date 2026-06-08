@@ -37,6 +37,18 @@ public class EstudanteServices {
 
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
+    public Boolean delete(String login){
+        var existe = estudanteRepository.existsByUsuarioEstudanteLogin(login);
+        if(existe){
+            Estudante estudandte = estudanteRepository.getByUsuarioEstudanteLogin(login);
+            estudanteRepository.delete(estudandte);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     @Transactional
     public Estudante cadastrarEstudante(EstudanteDTO dados) {
         verificacoes.forEach(v -> v.verificar(dados, estudanteRepository));
@@ -90,7 +102,7 @@ public class EstudanteServices {
 
         boolean mesmoEmail = estudante.getEmail().equals(dados.email());
 
-        if (mesmoEmail == false) {
+        if (!mesmoEmail) {
             if (estudanteRepository.existsByEmail(dados.email())) throw new EmUsoException("email ja em uso");
         }
 

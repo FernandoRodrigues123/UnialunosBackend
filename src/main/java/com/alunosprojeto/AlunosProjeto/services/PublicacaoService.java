@@ -54,4 +54,7 @@ public class PublicacaoService {
         return publicacao;
     }
 
+    public Publicacao getById(Long id) {
+        return repository.getReferenceById(id);
+    }
 }

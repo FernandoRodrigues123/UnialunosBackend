@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -72,9 +74,15 @@ public class EstudanteController {
                 .body(new EstudanteDTODetalhes(estudante));
     }
 
-
-
     @GetMapping
+    public ResponseEntity<EstudanteDTOLeituraSemPublicacaoEUsuario> me(@AuthenticationPrincipal UserDetails principal) {
+        String login = principal.getUsername();
+        return ResponseEntity.ok(new EstudanteDTOLeituraSemPublicacaoEUsuario(services.buscarEstudantePorLogin(login)));
+
+    }
+
+
+    @GetMapping("/all")
     public ResponseEntity<Page<EstudanteDTOLeitura>> buscarTodosEstudantes(@PageableDefault(size = 10, sort = {"nome"}) Pageable paginacao) {
         return ResponseEntity.ok(services.buscarTodosEstudantes(paginacao).map(EstudanteDTOLeitura::new));
     }
@@ -106,10 +114,12 @@ public class EstudanteController {
 
     @PutMapping("/{login}")
     @Transactional
-    public ResponseEntity atualizarCadastroDeEstudante(@RequestBody @Valid EstudanteDTOLeituraSemPublicacaoEUsuario dadosNovos, @PathVariable String login) {
+    public ResponseEntity<EstudanteDTODetalhes> atualizarCadastroDeEstudante(@RequestBody @Valid EstudanteDTOLeituraSemPublicacaoEUsuario dadosNovos, @PathVariable String login) {
+        System.out.println("atu");
+        System.out.println(dadosNovos);
         boolean validacao = UsuarioEstudanteServices.verificaUsuarioEstaTentandoAcessarProprioPerfilPeloLogin(login);
         if (validacao) {
-            return ResponseEntity.ok(services.atualizarCadastroDeEstudante(dadosNovos, login));
+            return ResponseEntity.ok(new EstudanteDTODetalhes(services.atualizarCadastroDeEstudante(dadosNovos, login)));
         }
         System.out.println("deu pau aq");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -125,6 +135,13 @@ public class EstudanteController {
         }
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+    @DeleteMapping("/del")
+    @Transactional
+    public ResponseEntity deletarCadastroEstudante(@AuthenticationPrincipal UserDetails principal) {
+
+        services.delete(principal.getUsername());
+        return ResponseEntity.noContent().build();
     }
 }
 

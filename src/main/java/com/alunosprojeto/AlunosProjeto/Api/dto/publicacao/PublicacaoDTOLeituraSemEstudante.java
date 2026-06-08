@@ -9,7 +9,7 @@ public record PublicacaoDTOLeituraSemEstudante (
     String titulo,
 
     String corpo,
-    String referencia
+    String referencias
 ){
     public PublicacaoDTOLeituraSemEstudante(Publicacao publicacao){
         this(publicacao.getId(), publicacao.getTitulo(),publicacao.getCorpo(), publicacao.getReferencias());

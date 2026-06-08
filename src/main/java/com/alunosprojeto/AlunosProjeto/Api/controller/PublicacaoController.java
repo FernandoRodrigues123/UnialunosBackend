@@ -2,6 +2,7 @@ package com.alunosprojeto.AlunosProjeto.Api.controller;
 
 import com.alunosprojeto.AlunosProjeto.Api.dto.publicacao.PublicacaoDTOAtualizar;
 import com.alunosprojeto.AlunosProjeto.Api.dto.publicacao.PublicacaoDTOLeitura;
+import com.alunosprojeto.AlunosProjeto.Api.dto.publicacao.PublicacaoDTOLeituraSemEstudante;
 import com.alunosprojeto.AlunosProjeto.Api.dto.publicacao.PublicacaoDTOLeituraSemLike;
 import com.alunosprojeto.AlunosProjeto.domain.models.Publicacao;
 import com.alunosprojeto.AlunosProjeto.services.LikeService;
@@ -17,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/publicacoes")
+        @RequestMapping("/publicacoes")
 public class PublicacaoController {
     @Autowired
     private PublicacaoService service;
@@ -101,6 +102,10 @@ public class PublicacaoController {
         }
 
     }
-
+    @GetMapping("/{id}")
+    public ResponseEntity<PublicacaoDTOLeituraSemEstudante> buscaPorId(@PathVariable(name = "id") Long id) {
+            System.out.println("access");
+            return ResponseEntity.ok(new PublicacaoDTOLeituraSemEstudante(service.getById(id)));
+    }
 
 }
